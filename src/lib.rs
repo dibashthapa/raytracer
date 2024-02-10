@@ -1,3 +1,4 @@
+pub mod matrix;
 pub mod tuple;
 use std::{
     fmt::Display,
