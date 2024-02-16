@@ -5,7 +5,7 @@ use std::{
     ops::{Add, Div, Mul, Neg, Sub},
 };
 
-fn equal(a: f64, b: f64) -> bool {
+pub fn equal(a: f64, b: f64) -> bool {
     let epsilion = 0.0001;
     return (a - b).abs() < epsilion;
 }

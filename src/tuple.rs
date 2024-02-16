@@ -14,7 +14,7 @@ macro_rules! vector {
 
 #[macro_export]
 macro_rules! point {
-    ($x: literal, $y: literal, $z: literal) => {
+    ($x: expr, $y: expr, $z: expr) => {
         Tuple {
             x: $x,
             y: $y,
@@ -29,6 +29,15 @@ pub struct Tuple {
     pub y: f64,
     pub z: f64,
     pub w: f64,
+}
+
+#[macro_export]
+macro_rules! test_point {
+    ($p1: expr, $p2: expr) => {
+        assert!(equal($p1.x, $p2.x));
+        assert!(equal($p1.y, $p2.y));
+        assert!(equal($p1.z, $p2.z));
+    };
 }
 
 impl Tuple {
