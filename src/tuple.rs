@@ -54,8 +54,8 @@ impl Tuple {
         }
     }
 
-    fn dot(a: Tuple, b: Tuple) -> f64 {
-        (a.x * b.x) + (a.y * b.y) + (a.z * b.z) + (a.w * b.w)
+    pub fn dot(&self, b: Tuple) -> f64 {
+        (self.x * b.x) + (self.y * b.y) + (self.z * b.z) + (self.w * b.w)
     }
 
     fn cross(a: Tuple, b: Tuple) -> Tuple {
@@ -143,7 +143,7 @@ mod tests {
             w: 0.,
         };
 
-        assert_eq!(Tuple::dot(a, b), 20.);
+        assert_eq!(a.dot(b), 20.);
     }
 
     #[test]

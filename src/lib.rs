@@ -1,4 +1,5 @@
 pub mod matrix;
+pub mod ray;
 pub mod tuple;
 use std::{
     fmt::Display,
@@ -62,9 +63,9 @@ impl Canvas {
 
 #[derive(Default, PartialEq, Debug, Clone, Copy)]
 pub struct Color {
-   pub red: f64,
-   pub green: f64,
-   pub blue: f64,
+    pub red: f64,
+    pub green: f64,
+    pub blue: f64,
 }
 
 fn hadamard_product(c1: Color, c2: Color) -> Color {
