@@ -82,7 +82,7 @@ impl Matrix4 {
         Ok(m)
     }
 
-    fn translate(x: f64, y: f64, z: f64) -> Matrix4 {
+    pub fn translate(x: f64, y: f64, z: f64) -> Matrix4 {
         Matrix4([
             [1.0, 0., 0., x],
             [0., 1., 0., y],
@@ -91,7 +91,16 @@ impl Matrix4 {
         ])
     }
 
-    fn scaling(x: f64, y: f64, z: f64) -> Matrix4 {
+    pub fn scale(&self, x: f64, y: f64, z: f64) -> Matrix4 {
+        Matrix4([
+            [x, 0., 0., 0.],
+            [0., y, 0., 0.],
+            [0., 0., z, 0.],
+            [0., 0., 0., 1.],
+        ])
+    }
+
+    pub fn scaling(x: f64, y: f64, z: f64) -> Matrix4 {
         Matrix4([
             [x, 0., 0., 0.],
             [0., y, 0., 0.],
@@ -132,7 +141,7 @@ impl Matrix4 {
         self.minor(row, column)
     }
 
-    fn rotation_x(r: f64) -> Matrix4 {
+    pub fn rotation_x(r: f64) -> Matrix4 {
         Matrix4([
             [1., 0., 0., 0.],
             [0., r.cos(), -r.sin(), 0.],
@@ -141,7 +150,7 @@ impl Matrix4 {
         ])
     }
 
-    fn rotation_y(r: f64) -> Matrix4 {
+    pub fn rotation_y(r: f64) -> Matrix4 {
         Matrix4([
             [r.cos(), 0., r.sin(), 0.],
             [0., 1., 0., 0.],
@@ -150,10 +159,19 @@ impl Matrix4 {
         ])
     }
 
-    fn rotation_z(r: f64) -> Matrix4 {
+    pub fn rotation_z(r: f64) -> Matrix4 {
         Matrix4([
             [r.cos(), -r.sin(), 0., 0.],
             [r.sin(), r.cos(), 0., 0.],
+            [0., 0., 1., 0.],
+            [0., 0., 0., 1.],
+        ])
+    }
+
+    pub fn identity() -> Matrix4 {
+        Matrix4([
+            [1., 0., 0., 0.],
+            [0., 1., 0., 0.],
             [0., 0., 1., 0.],
             [0., 0., 0., 1.],
         ])

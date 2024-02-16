@@ -33,7 +33,7 @@ impl Canvas {
         }
     }
 
-    fn write_pixel(&mut self, x: usize, y: usize, c: Color) {
+    pub fn write_pixel(&mut self, x: usize, y: usize, c: Color) {
         self.colors[y][x] = c;
     }
 
@@ -52,7 +52,7 @@ impl Canvas {
             contents.push_str("\n");
         }
 
-        return contents;
+        contents
     }
 
     pub fn save(&self) -> String {
@@ -60,11 +60,11 @@ impl Canvas {
     }
 }
 
-#[derive(Default, PartialEq, Debug, Clone)]
-struct Color {
-    red: f64,
-    green: f64,
-    blue: f64,
+#[derive(Default, PartialEq, Debug, Clone, Copy)]
+pub struct Color {
+   pub red: f64,
+   pub green: f64,
+   pub blue: f64,
 }
 
 fn hadamard_product(c1: Color, c2: Color) -> Color {
