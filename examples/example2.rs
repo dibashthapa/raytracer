@@ -32,5 +32,5 @@ fn main() {
 
     
 
-    println!("{}", canvas.save());
+    canvas.save();
 }

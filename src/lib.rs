@@ -1,8 +1,10 @@
+pub mod intersection;
 pub mod matrix;
 pub mod ray;
 pub mod tuple;
 use std::{
     fmt::Display,
+    fs,
     ops::{Add, Div, Mul, Neg, Sub},
 };
 
@@ -56,8 +58,9 @@ impl Canvas {
         contents
     }
 
-    pub fn save(&self) -> String {
-        format!("P3\n{} {}\n255\n{}", self.width, self.height, self.to_ppm())
+    pub fn save(&self) {
+        let content = format!("P3\n{} {}\n255\n{}", self.width, self.height, self.to_ppm());
+        fs::write("./image.ppm", content).expect("Unable to write file");
     }
 }
 

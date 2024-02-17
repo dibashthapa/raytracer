@@ -1,69 +1,74 @@
-use crate::point;
+use crate::matrix::Matrix4;
 use crate::tuple::Tuple;
-use std::time::{SystemTime, UNIX_EPOCH};
+use crate::{intersection::Intersection, point};
 
-#[derive(Debug, Clone)]
-struct Sphere {
-    id: u64,
-    center: Tuple,
-    radius: f64,
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Sphere {
+    pub transform: Matrix4,
 }
 
 impl Default for Sphere {
     fn default() -> Self {
-        Self::new(point!(0., 0., 0.), 1.)
+        Self::new(Matrix4::identity())
     }
 }
 
 impl Sphere {
-    fn new(center: Tuple, radius: f64) -> Self {
-        let id = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
-
-        Self { id, center, radius }
-    }
-}
-
-#[derive(Debug, Clone, Copy)]
-struct Ray {
-    origin: Tuple,
-    direction: Tuple,
-}
-
-impl Ray {
-    fn position(&self, time: f64) -> Tuple {
-        self.origin + self.direction * time
+    fn new(transform: Matrix4) -> Self {
+        Self { transform }
     }
 
-    fn intersects(&self, s: Sphere) -> Vec<f64> {
-        let sphere_to_ray = self.origin - s.center;
-        let a = self.direction.dot(self.direction);
-        let b = 2.0 * sphere_to_ray.dot(self.direction);
-        let c = sphere_to_ray.dot(sphere_to_ray) - s.radius * s.radius;
+    pub fn intersect(&self, mut r: Ray) -> Vec<Intersection> {
+        let ray = r.transform(self.transform.inverse().unwrap());
+        let sphere_to_ray = ray.origin - point!(0., 0., 0.);
+        let a = ray.direction.dot(ray.direction);
+        let b = 2.0 * sphere_to_ray.dot(ray.direction);
+        let c = sphere_to_ray.dot(sphere_to_ray) - 1.;
         let discriminant = b * b - 4.0 * a * c;
 
         if discriminant < 0.0 {
             vec![]
         } else {
-            let t1 = (-b - discriminant.sqrt()) / (2.0 * a);
-            let t2 = (-b + discriminant.sqrt()) / (2.0 * a);
+            let t1 = Intersection {
+                t: (-b - discriminant.sqrt()) / (2.0 * a),
+                object: *self,
+            };
+            let t2 = Intersection {
+                t: (-b + discriminant.sqrt()) / (2.0 * a),
+                object: *self,
+            };
+
             vec![t1, t2]
+        }
+    }
+
+    fn set_transform(&mut self, t: Matrix4) {
+        self.transform = t;
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct Ray {
+    pub origin: Tuple,
+    pub direction: Tuple,
+}
+
+impl Ray {
+    pub fn position(&self, time: f64) -> Tuple {
+        self.origin + self.direction * time
+    }
+
+    pub fn transform(&mut self, matrix: Matrix4) -> Self {
+        Self {
+            origin: matrix * self.origin,
+            direction: matrix * self.direction,
         }
     }
 }
 
-fn sphere() -> f64 {
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_secs() as f64
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::{point, tuple::Tuple, vector};
+    use crate::{intersection::Intersections, matrix::Matrix4, point, tuple::Tuple, vector};
 
     use super::{Ray, Sphere};
 
@@ -88,11 +93,11 @@ mod tests {
 
         let s = Sphere::default();
 
-        let xs = r.intersects(s);
+        let xs = s.intersect(r);
 
         assert_eq!(xs.len(), 2);
-        assert_eq!(xs[0], 4.);
-        assert_eq!(xs[1], 6.);
+        assert_eq!(xs[0].t, 4.);
+        assert_eq!(xs[1].t, 6.);
     }
 
     #[test]
@@ -102,10 +107,10 @@ mod tests {
             direction: vector!(0., 0., 1.),
         };
         let s = Sphere::default();
-        let xs = r.intersects(s);
+        let xs = s.intersect(r);
         assert_eq!(xs.len(), 2);
-        assert_eq!(xs[0], 5.);
-        assert_eq!(xs[1], 5.);
+        assert_eq!(xs[0].t, 5.);
+        assert_eq!(xs[1].t, 5.);
     }
 
     #[test]
@@ -115,7 +120,7 @@ mod tests {
             direction: vector!(0., 0., 1.),
         };
         let s = Sphere::default();
-        let xs = r.intersects(s);
+        let xs = s.intersect(r);
         assert_eq!(xs.len(), 0);
     }
 
@@ -126,10 +131,10 @@ mod tests {
             direction: vector!(0., 0., 1.),
         };
         let s = Sphere::default();
-        let xs = r.intersects(s);
+        let xs = s.intersect(r);
         assert_eq!(xs.len(), 2);
-        assert_eq!(xs[0], -1.);
-        assert_eq!(xs[1], 1.);
+        assert_eq!(xs[0].t, -1.);
+        assert_eq!(xs[1].t, 1.);
     }
 
     #[test]
@@ -138,10 +143,88 @@ mod tests {
             origin: point!(0., 0., 5.),
             direction: vector!(0., 0., 1.),
         };
+        let s = Sphere::default();
 
-        let xs = r.intersects(Sphere::default());
+        let xs = s.intersect(r);
         assert_eq!(xs.len(), 2);
-        assert_eq!(xs[0], -6.);
-        assert_eq!(xs[1], -4.);
+        assert_eq!(xs[0].t, -6.);
+        assert_eq!(xs[1].t, -4.);
+    }
+
+    #[test]
+    fn test_translating_ray() {
+        let mut r = Ray {
+            origin: point!(1., 2., 3.),
+            direction: vector!(0., 1., 0.),
+        };
+        let m = Matrix4::translate(3., 4., 5.);
+        let r = r.transform(m);
+        assert_eq!(r.origin, point!(4., 6., 8.));
+        assert_eq!(r.direction, vector!(0., 1., 0.));
+    }
+
+    #[test]
+    fn test_scaling_ray() {
+        let mut r = Ray {
+            origin: point!(1., 2., 3.),
+            direction: vector!(0., 1., 0.),
+        };
+        let m = Matrix4::scaling(2., 3., 4.);
+        let r = r.transform(m);
+        assert_eq!(r.origin, point!(2., 6., 12.));
+        assert_eq!(r.direction, vector!(0., 3., 0.));
+    }
+
+    #[test]
+    fn test_ray_sphere_intersection() {
+        let sphere = Sphere::default();
+        let ray_origin = point!(0., 0., -5.);
+        let wall_point = point!(0., 0., 10.);
+        let ray = Ray {
+            origin: ray_origin,
+            direction: (wall_point - ray_origin).normalize(),
+        };
+        let xs = Intersections(sphere.intersect(ray));
+        assert_eq!(xs.hit().is_some(), true);
+    }
+    #[test]
+    fn sphere_default_transformation() {
+        let s = Sphere::default();
+        assert_eq!(s.transform, Matrix4::identity());
+    }
+
+    #[test]
+    fn changing_sphere_transformation() {
+        let mut s = Sphere::default();
+        let t = Matrix4::translate(2., 3., 4.);
+        s.set_transform(t);
+        assert_eq!(s.transform, t);
+    }
+
+    #[test]
+    fn intersecting_scaled_sphere_ray() {
+        let r = Ray {
+            origin: point!(0., 0., -5.),
+            direction: vector!(0., 0., 1.),
+        };
+
+        let mut s = Sphere::default();
+        s.set_transform(Matrix4::scaling(2., 2., 2.));
+        let xs = s.intersect(r);
+        assert_eq!(xs.len(), 2);
+        assert_eq!(xs[0].t, 3.);
+        assert_eq!(xs[1].t, 7.);
+    }
+
+    #[test]
+    fn intersecting_translated_sphere_with_ray() {
+        let r = Ray {
+            origin: point!(0., 0., -5.),
+            direction: vector!(0., 0., 1.),
+        };
+        let mut s = Sphere::default();
+        s.set_transform(Matrix4::translate(5., 0., 0.));
+        let xs = s.intersect(r);
+        assert_eq!(xs.len(), 0);
     }
 }
