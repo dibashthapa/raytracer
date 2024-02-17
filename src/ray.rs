@@ -1,3 +1,4 @@
+use crate::intersection::Intersections;
 use crate::matrix::Matrix4;
 use crate::tuple::Tuple;
 use crate::{intersection::Intersection, point};
@@ -18,7 +19,7 @@ impl Sphere {
         Self { transform }
     }
 
-    pub fn intersect(&self, mut r: Ray) -> Vec<Intersection> {
+    pub fn intersect(&self, mut r: Ray) -> Intersections {
         let ray = r.transform(self.transform.inverse().unwrap());
         let sphere_to_ray = ray.origin - point!(0., 0., 0.);
         let a = ray.direction.dot(ray.direction);
@@ -27,7 +28,7 @@ impl Sphere {
         let discriminant = b * b - 4.0 * a * c;
 
         if discriminant < 0.0 {
-            vec![]
+            Intersections(vec![])
         } else {
             let t1 = Intersection {
                 t: (-b - discriminant.sqrt()) / (2.0 * a),
@@ -38,7 +39,7 @@ impl Sphere {
                 object: *self,
             };
 
-            vec![t1, t2]
+            Intersections(vec![t1, t2])
         }
     }
 
@@ -95,9 +96,9 @@ mod tests {
 
         let xs = s.intersect(r);
 
-        assert_eq!(xs.len(), 2);
-        assert_eq!(xs[0].t, 4.);
-        assert_eq!(xs[1].t, 6.);
+        assert_eq!(xs.0.len(), 2);
+        assert_eq!(xs.0[0].t, 4.);
+        assert_eq!(xs.0[1].t, 6.);
     }
 
     #[test]
@@ -108,9 +109,9 @@ mod tests {
         };
         let s = Sphere::default();
         let xs = s.intersect(r);
-        assert_eq!(xs.len(), 2);
-        assert_eq!(xs[0].t, 5.);
-        assert_eq!(xs[1].t, 5.);
+        assert_eq!(xs.0.len(), 2);
+        assert_eq!(xs.0[0].t, 5.);
+        assert_eq!(xs.0[1].t, 5.);
     }
 
     #[test]
@@ -121,7 +122,7 @@ mod tests {
         };
         let s = Sphere::default();
         let xs = s.intersect(r);
-        assert_eq!(xs.len(), 0);
+        assert_eq!(xs.0.len(), 0);
     }
 
     #[test]
@@ -132,9 +133,9 @@ mod tests {
         };
         let s = Sphere::default();
         let xs = s.intersect(r);
-        assert_eq!(xs.len(), 2);
-        assert_eq!(xs[0].t, -1.);
-        assert_eq!(xs[1].t, 1.);
+        assert_eq!(xs.0.len(), 2);
+        assert_eq!(xs.0[0].t, -1.);
+        assert_eq!(xs.0[1].t, 1.);
     }
 
     #[test]
@@ -146,9 +147,9 @@ mod tests {
         let s = Sphere::default();
 
         let xs = s.intersect(r);
-        assert_eq!(xs.len(), 2);
-        assert_eq!(xs[0].t, -6.);
-        assert_eq!(xs[1].t, -4.);
+        assert_eq!(xs.0.len(), 2);
+        assert_eq!(xs.0[0].t, -6.);
+        assert_eq!(xs.0[1].t, -4.);
     }
 
     #[test]
@@ -198,9 +199,9 @@ mod tests {
         let mut s = Sphere::default();
         s.set_transform(Matrix4::scaling(2., 2., 2.));
         let xs = s.intersect(r);
-        assert_eq!(xs.len(), 2);
-        assert_eq!(xs[0].t, 3.);
-        assert_eq!(xs[1].t, 7.);
+        assert_eq!(xs.0.len(), 2);
+        assert_eq!(xs.0[0].t, 3.);
+        assert_eq!(xs.0[1].t, 7.);
     }
 
     #[test]
@@ -212,6 +213,6 @@ mod tests {
         let mut s = Sphere::default();
         s.set_transform(Matrix4::translate(5., 0., 0.));
         let xs = s.intersect(r);
-        assert_eq!(xs.len(), 0);
+        assert_eq!(xs.0.len(), 0);
     }
 }

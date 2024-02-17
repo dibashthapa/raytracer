@@ -51,9 +51,9 @@ mod tests {
         };
         let s= Sphere::default();
         let xs = s.intersect(r);
-        assert_eq!(xs.len(), 2);
-        assert_eq!(xs[0].object, Sphere::default());
-        assert_eq!(xs[1].object, Sphere::default());
+        assert_eq!(xs.0.len(), 2);
+        assert_eq!(xs.0[0].object, Sphere::default());
+        assert_eq!(xs.0[1].object, Sphere::default());
     }
 
     #[test]

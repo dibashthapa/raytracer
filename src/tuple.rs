@@ -49,7 +49,7 @@ impl Tuple {
         Self {
             x: self.x / self.magnitude(),
             y: self.y / self.magnitude(),
-            z: self.y / self.magnitude(),
+            z: self.z / self.magnitude(),
             w: self.w / self.magnitude(),
         }
     }
@@ -113,6 +113,19 @@ impl Mul<f64> for Tuple {
             y: self.y * rhs,
             z: self.z * rhs,
             w: self.w * rhs,
+        }
+    }
+}
+
+impl Div<f64> for Tuple {
+    type Output = Tuple;
+
+    fn div(self, rhs: f64) -> Self::Output {
+        Tuple {
+            x: self.x / rhs,
+            y: self.y / rhs,
+            z: self.z / rhs,
+            w: self.w / rhs,
         }
     }
 }

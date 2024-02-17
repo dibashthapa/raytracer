@@ -3,36 +3,47 @@ use raytracer::ray::{Ray, Sphere};
 use raytracer::{point, tuple::Tuple, Canvas, Color};
 
 fn main() {
-    let canvas_pixels = 100;
-    let mut canvas = Canvas::new(canvas_pixels, canvas_pixels);
-    let color = Color {
-        red: 1.,
-        blue: 0.,
-        green: 0.,
+    let ray_origin = point!(0.0, 0.0, -5.0);
+    let wall_position_z = 5.0;
+    let wall_size = 10.0;
+
+    let canvas_size = 400;
+    let canvas_pixel_world_size = wall_size / canvas_size as f64;
+
+    let yellow = Color {
+        red: 1.0,
+        blue: 1.0,
+        green: 0.0,
     };
 
-    let sphere = Sphere::default();
-    let ray_origin = point!(0., 0., -5.);
-    let wall_z = 10.;
-    let wall_size = 7.;
-    let pixels_size = wall_size / canvas_pixels as f64;
+    let mut canvas = Canvas::new(canvas_size, canvas_size);
 
-    let half = wall_size / 2.;
-    for y in 0..canvas_pixels {
-        let world_y = half - pixels_size * y as f64;
-        for x in 0..canvas_pixels {
-            let world_x = -half + pixels_size * x as f64;
-            let position = point!(world_x, world_y, wall_z);
+    let sphere = Sphere::default();
+
+    println!(
+        "Raytracing {} pixels. Please be patient...",
+        canvas_size.pow(2)
+    );
+
+    for y in 0..canvas_size {
+        for x in 0..canvas_size {
+            let half = wall_size / 2.0;
+            let world_x = -half + (x as f64) * canvas_pixel_world_size;
+            let world_y = half - (y as f64) * canvas_pixel_world_size;
+
+            let wall_point = point!(world_x, world_y, wall_position_z);
+
             let ray = Ray {
                 origin: ray_origin,
-                direction: (position - ray_origin).normalize(),
+                direction: (wall_point - ray_origin).normalize(),
             };
+
             let xs = sphere.intersect(ray);
-            if Intersections(xs).hit().is_some() {
-                canvas.write_pixel(x, y, color);
+
+            if xs.hit() != None {
+                canvas.write_pixel(x, y, yellow);
             }
         }
     }
-
     canvas.save();
 }
