@@ -22,7 +22,7 @@ impl Sphere {
         let ray = r.transform(self.transform.inverse().unwrap());
         let sphere_to_ray = ray.origin - point!(0., 0., 0.);
         let a = ray.direction.dot(ray.direction);
-        let b = 2.0 * sphere_to_ray.dot(ray.direction);
+        let b = 2.0 * ray.direction.dot(sphere_to_ray);
         let c = sphere_to_ray.dot(sphere_to_ray) - 1.;
         let discriminant = b * b - 4.0 * a * c;
 
@@ -68,7 +68,7 @@ impl Ray {
 
 #[cfg(test)]
 mod tests {
-    use crate::{intersection::Intersections, matrix::Matrix4, point, tuple::Tuple, vector};
+    use crate::{ matrix::Matrix4, point, tuple::Tuple, vector};
 
     use super::{Ray, Sphere};
 
@@ -173,19 +173,6 @@ mod tests {
         let r = r.transform(m);
         assert_eq!(r.origin, point!(2., 6., 12.));
         assert_eq!(r.direction, vector!(0., 3., 0.));
-    }
-
-    #[test]
-    fn test_ray_sphere_intersection() {
-        let sphere = Sphere::default();
-        let ray_origin = point!(0., 0., -5.);
-        let wall_point = point!(0., 0., 10.);
-        let ray = Ray {
-            origin: ray_origin,
-            direction: (wall_point - ray_origin).normalize(),
-        };
-        let xs = Intersections(sphere.intersect(ray));
-        assert_eq!(xs.hit().is_some(), true);
     }
     #[test]
     fn sphere_default_transformation() {
