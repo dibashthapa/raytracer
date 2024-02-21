@@ -32,6 +32,15 @@ pub struct Tuple {
 }
 
 #[macro_export]
+macro_rules! test_color {
+    ($p1: expr, $p2: expr) => {
+        assert!(equal($p1.red, $p2.red));
+        assert!(equal($p1.blue, $p2.blue));
+        assert!(equal($p1.green, $p2.green));
+    };
+}
+
+#[macro_export]
 macro_rules! test_point {
     ($p1: expr, $p2: expr) => {
         assert!(equal($p1.x, $p2.x));
@@ -52,6 +61,10 @@ impl Tuple {
             z: self.z / self.magnitude(),
             w: self.w / self.magnitude(),
         }
+    }
+
+    pub fn reflect(&self, normal: Tuple) -> Self {
+        *self - normal * 2. * self.dot(normal)
     }
 
     pub fn dot(&self, b: Tuple) -> f64 {
@@ -132,7 +145,8 @@ impl Div<f64> for Tuple {
 
 #[cfg(test)]
 mod tests {
-    use super::Tuple;
+    use crate::tuple::Tuple;
+    use crate::{equal, test_point};
 
     #[test]
     fn test_magnitude() {
@@ -177,5 +191,22 @@ mod tests {
                 w: 0.
             }
         );
+    }
+
+    #[test]
+    fn reflect_vector_approaching_45() {
+        let v = vector!(1., -1., 0.);
+        let n = vector!(0., 1., 0.);
+
+        let r = v.reflect(n);
+        assert_eq!(r, vector!(1., 1., 0.));
+    }
+
+    #[test]
+    fn reflect_vector_off_slanted_surface() {
+        let v = vector!(0., -1., 0.);
+        let n = vector!(2_f64.sqrt() / 2., 2_f64.sqrt() / 2., 0.);
+        let r = v.reflect(n);
+        test_point!(r, vector!(1., 0., 0.));
     }
 }

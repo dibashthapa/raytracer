@@ -118,7 +118,7 @@ impl Matrix4 {
         ])
     }
 
-    fn transpose(&self) -> Self {
+    pub fn transpose(&self) -> Self {
         let mut output = Self([[0.; 4]; 4]);
         for row in 0..4 {
             for col in 0..4 {

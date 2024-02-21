@@ -1,6 +1,8 @@
 pub mod intersection;
+pub mod material;
 pub mod matrix;
 pub mod ray;
+pub mod sphere;
 pub mod tuple;
 use std::{
     fmt::Display,
@@ -46,7 +48,6 @@ impl Canvas {
 
     pub fn to_ppm(&self) -> String {
         let mut contents = String::new();
-        // let mut contents = format!("P3\n{} {}\n255\n", self.width, self.height);
 
         for row in &self.colors {
             for color in row {
@@ -69,6 +70,17 @@ pub struct Color {
     pub red: f64,
     pub green: f64,
     pub blue: f64,
+}
+
+impl Mul for Color {
+    type Output = Self;
+    fn mul(self, rhs: Self) -> Self::Output {
+        Self {
+            red: self.red * rhs.red,
+            green: self.green * rhs.green,
+            blue: self.blue * rhs.blue,
+        }
+    }
 }
 
 fn hadamard_product(c1: Color, c2: Color) -> Color {

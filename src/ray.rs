@@ -1,52 +1,5 @@
-use crate::intersection::Intersections;
 use crate::matrix::Matrix4;
 use crate::tuple::Tuple;
-use crate::{intersection::Intersection, point};
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Sphere {
-    pub transform: Matrix4,
-}
-
-impl Default for Sphere {
-    fn default() -> Self {
-        Self::new(Matrix4::identity())
-    }
-}
-
-impl Sphere {
-    fn new(transform: Matrix4) -> Self {
-        Self { transform }
-    }
-
-    pub fn intersect(&self, mut r: Ray) -> Intersections {
-        let ray = r.transform(self.transform.inverse().unwrap());
-        let sphere_to_ray = ray.origin - point!(0., 0., 0.);
-        let a = ray.direction.dot(ray.direction);
-        let b = 2.0 * ray.direction.dot(sphere_to_ray);
-        let c = sphere_to_ray.dot(sphere_to_ray) - 1.;
-        let discriminant = b * b - 4.0 * a * c;
-
-        if discriminant < 0.0 {
-            Intersections(vec![])
-        } else {
-            let t1 = Intersection {
-                t: (-b - discriminant.sqrt()) / (2.0 * a),
-                object: *self,
-            };
-            let t2 = Intersection {
-                t: (-b + discriminant.sqrt()) / (2.0 * a),
-                object: *self,
-            };
-
-            Intersections(vec![t1, t2])
-        }
-    }
-
-    fn set_transform(&mut self, t: Matrix4) {
-        self.transform = t;
-    }
-}
 
 #[derive(Debug, Clone, Copy)]
 pub struct Ray {
@@ -69,9 +22,9 @@ impl Ray {
 
 #[cfg(test)]
 mod tests {
-    use crate::{ matrix::Matrix4, point, tuple::Tuple, vector};
+    use crate::{matrix::Matrix4, point, sphere::Sphere, tuple::Tuple, vector};
 
-    use super::{Ray, Sphere};
+    use super::Ray;
 
     #[test]
     fn test_point_from_distance() {

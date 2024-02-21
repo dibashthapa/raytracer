@@ -1,4 +1,4 @@
-use crate::ray::Sphere;
+use crate::sphere::Sphere;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Intersection {
@@ -10,22 +10,17 @@ pub struct Intersection {
 pub struct Intersections(pub Vec<Intersection>);
 
 impl Intersections {
-        pub fn hit(&self) -> Option<&Intersection> {
-            self.0
-                .iter()
-                .filter(|i| i.t >= 0.)
-                .min_by(|a, b| a.t.partial_cmp(&b.t).unwrap())
-        }
+    pub fn hit(&self) -> Option<&Intersection> {
+        self.0
+            .iter()
+            .filter(|i| i.t >= 0.)
+            .min_by(|a, b| a.t.partial_cmp(&b.t).unwrap())
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        point,
-        ray::{Ray, Sphere},
-        tuple::Tuple,
-        vector,
-    };
+    use crate::{point, ray::Ray, sphere::Sphere, tuple::Tuple, vector};
 
     use super::{Intersection, Intersections};
 
@@ -49,7 +44,7 @@ mod tests {
             origin: point!(0., 0., -5.),
             direction: vector!(0., 0., 1.),
         };
-        let s= Sphere::default();
+        let s = Sphere::default();
         let xs = s.intersect(r);
         assert_eq!(xs.0.len(), 2);
         assert_eq!(xs.0[0].object, Sphere::default());
