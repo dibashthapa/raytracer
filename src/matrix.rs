@@ -1,6 +1,6 @@
 use crate::tuple::Tuple;
-use core::ops::{Add, Div, Mul, Sub};
-use std::f64::consts::PI;
+use core::ops::{Mul};
+
 
 #[derive(Debug, PartialEq)]
 pub struct Matrix2([[f64; 2]; 2]);

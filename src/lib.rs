@@ -43,7 +43,7 @@ impl Canvas {
     }
 
     fn pixel_at(&self, x: usize, y: usize) -> Color {
-        self.colors[y][x].clone()
+        self.colors[y][x]
     }
 
     pub fn to_ppm(&self) -> String {
@@ -53,7 +53,7 @@ impl Canvas {
             for color in row {
                 contents.push_str(color.to_string().as_str());
             }
-            contents.push_str("\n");
+            contents.push('\n');
         }
 
         contents
